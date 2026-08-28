@@ -23,7 +23,6 @@
         }
         .header h1 { color: var(--color-primario); }
         
-        /* Contenedor de Filtros Mejorado */
         .filtros-container {
             max-width: 800px;
             margin: 0 auto 30px auto;
@@ -106,11 +105,10 @@
 <body>
 
     <div class="header">
-        <h1>Monitorías Académicas FICB</h1>
+        <h1>Monitorías Académicas</h1>
         <p>Selecciona tu asignatura o monitor para ver los horarios disponibles.</p>
     </div>
 
-    <!-- Menús desplegables -->
     <div class="filtros-container">
         <div class="filtro-grupo">
             <label for="filtroAsignatura">Filtrar por Asignatura:</label>
@@ -131,8 +129,8 @@
     <div class="grid-monitorias" id="contenedorTarjetas"></div>
 
     <script>
-        // ¡RECUERDA PONER TU URL REAL AQUÍ!
-        const WEB_APP_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; 
+        // URL pública corregida para evitar bloqueos institucionales
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvOqJ3XXdV2A46gPutNQDcnxqOulRLzxFP2yoBQ3y3L0wsmYiID_K6EqeGoR_HRqfoMg/exec"; 
         let datosGlobales = []; 
 
         async function cargarDatos() {
@@ -145,20 +143,18 @@
                 datosGlobales = datos;
                 document.getElementById('estadoCarga').style.display = 'none';
                 
-                poblarFiltros(datosGlobales); // Llenar los menús
-                renderizarTarjetas(datosGlobales); // Dibujar todo al inicio
+                poblarFiltros(datosGlobales); 
+                renderizarTarjetas(datosGlobales); 
             } catch (error) {
-                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Intenta nuevamente.";
-                console.error(error);
+                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica que existan horarios en estado 'Libre' en la base de datos.";
+                console.error("Detalle del error:", error);
             }
         }
 
-        // Extraer valores únicos y llenar los menús desplegables
         function poblarFiltros(datos) {
             const selectAsignatura = document.getElementById('filtroAsignatura');
             const selectMonitor = document.getElementById('filtroMonitor');
             
-            // Usamos Set para evitar nombres duplicados y sort para ordenar alfabéticamente
             const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
             const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
             
@@ -171,7 +167,6 @@
             });
         }
 
-        // Filtrar tarjetas considerando AMBOS menús
         function filtrarTarjetas() {
             const asigSeleccionada = document.getElementById('filtroAsignatura').value;
             const monSeleccionado = document.getElementById('filtroMonitor').value;
@@ -179,7 +174,7 @@
             const resultadosFiltrados = datosGlobales.filter(mon => {
                 const coincideAsig = asigSeleccionada === "" || mon.asignatura === asigSeleccionada;
                 const coincideMon = monSeleccionado === "" || mon.monitor === monSeleccionado;
-                return coincideAsig && coincideMon; // Debe cumplir ambas condiciones (o estar en "Todos")
+                return coincideAsig && coincideMon; 
             });
             
             renderizarTarjetas(resultadosFiltrados);
@@ -241,20 +236,19 @@
                 
                 if (resultado.status === "exito") {
                     alert("¡Monitoría reservada! Revisa tu correo.");
-                    cargarDatos(); // Recargar datos limpios desde el servidor
+                    cargarDatos(); 
                 } else {
                     alert("Hubo un problema: " + resultado.error);
                     btn.innerText = "Reservar Espacio";
                     btn.disabled = false;
                 }
             } catch (error) {
-                alert("Error de conexión.");
+                alert("Error de conexión. Intenta de nuevo.");
                 btn.innerText = "Reservar Espacio";
                 btn.disabled = false;
             }
         }
 
-        // Ejecutar al inicio
         cargarDatos();
     </script>
 </body>
