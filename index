@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitorías Académicas</title>
+    <style>
+        :root {
+            --color-primario: #003366; 
+            --color-secundario: #f4f7f6;
+            --color-acento: #28a745;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-secundario);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 { color: var(--color-primario); }
+        
+        /* Contenedor de Filtros Mejorado */
+        .filtros-container {
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+        }
+        .filtro-grupo {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+        .filtro-grupo label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--color-primario);
+            font-size: 14px;
+        }
+        .filtro-grupo select {
+            padding: 10px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+        }
+        
+        .grid-monitorias {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tarjeta {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            border-top: 4px solid var(--color-primario);
+        }
+        .tarjeta:hover { transform: translateY(-5px); }
+        .tarjeta h3 { margin: 0 0 10px 0; color: var(--color-primario); }
+        .etiqueta {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .etiqueta.virtual { background-color: #e1f5fe; color: #0277bd; }
+        .etiqueta.presencial { background-color: #f1f8e9; color: #33691e; }
+        .datos p { margin: 5px 0; font-size: 14px; }
+        .reserva-form {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .reserva-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-reservar {
+            background-color: var(--color-acento);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-reservar:hover { background-color: #218838; }
+        .mensaje-carga { text-align: center; font-size: 18px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Monitorías Académicas FICB</h1>
+        <p>Selecciona tu asignatura o monitor para ver los horarios disponibles.</p>
+    </div>
+
+    <!-- Menús desplegables -->
+    <div class="filtros-container">
+        <div class="filtro-grupo">
+            <label for="filtroAsignatura">Filtrar por Asignatura:</label>
+            <select id="filtroAsignatura" onchange="filtrarTarjetas()">
+                <option value="">-- Todas las asignaturas --</option>
+            </select>
+        </div>
+        <div class="filtro-grupo">
+            <label for="filtroMonitor">Filtrar por Monitor:</label>
+            <select id="filtroMonitor" onchange="filtrarTarjetas()">
+                <option value="">-- Todos los monitores --</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="estadoCarga" class="mensaje-carga">Cargando horarios disponibles...</div>
+    
+    <div class="grid-monitorias" id="contenedorTarjetas"></div>
+
+    <script>
+        // ¡RECUERDA PONER TU URL REAL AQUÍ!
+        const WEB_APP_URL = "TU_URL_DE_APPS_SCRIPT_AQUI"; 
+        let datosGlobales = []; 
+
+        async function cargarDatos() {
+            try {
+                const respuesta = await fetch(WEB_APP_URL);
+                const datos = await respuesta.json();
+                
+                if(datos.error) throw new Error(datos.error);
+                
+                datosGlobales = datos;
+                document.getElementById('estadoCarga').style.display = 'none';
+                
+                poblarFiltros(datosGlobales); // Llenar los menús
+                renderizarTarjetas(datosGlobales); // Dibujar todo al inicio
+            } catch (error) {
+                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Intenta nuevamente.";
+                console.error(error);
+            }
+        }
+
+        // Extraer valores únicos y llenar los menús desplegables
+        function poblarFiltros(datos) {
+            const selectAsignatura = document.getElementById('filtroAsignatura');
+            const selectMonitor = document.getElementById('filtroMonitor');
+            
+            // Usamos Set para evitar nombres duplicados y sort para ordenar alfabéticamente
+            const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
+            const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
+            
+            asignaturasUnicas.forEach(asig => {
+                selectAsignatura.innerHTML += `<option value="${asig}">${asig}</option>`;
+            });
+            
+            monitoresUnicos.forEach(mon => {
+                selectMonitor.innerHTML += `<option value="${mon}">${mon}</option>`;
+            });
+        }
+
+        // Filtrar tarjetas considerando AMBOS menús
+        function filtrarTarjetas() {
+            const asigSeleccionada = document.getElementById('filtroAsignatura').value;
+            const monSeleccionado = document.getElementById('filtroMonitor').value;
+            
+            const resultadosFiltrados = datosGlobales.filter(mon => {
+                const coincideAsig = asigSeleccionada === "" || mon.asignatura === asigSeleccionada;
+                const coincideMon = monSeleccionado === "" || mon.monitor === monSeleccionado;
+                return coincideAsig && coincideMon; // Debe cumplir ambas condiciones (o estar en "Todos")
+            });
+            
+            renderizarTarjetas(resultadosFiltrados);
+        }
+
+        function renderizarTarjetas(listaMonitorias) {
+            const contenedor = document.getElementById('contenedorTarjetas');
+            contenedor.innerHTML = ""; 
+
+            if (listaMonitorias.length === 0) {
+                contenedor.innerHTML = "<p style='grid-column: 1 / -1; text-align: center;'>No hay monitorías disponibles con estos filtros.</p>";
+                return;
+            }
+
+            listaMonitorias.forEach(mon => {
+                const claseModalidad = mon.modalidad.toLowerCase() === 'virtual' ? 'virtual' : 'presencial';
+                
+                const tarjetaHTML = `
+                    <div class="tarjeta">
+                        <h3>${mon.asignatura}</h3>
+                        <span class="etiqueta ${claseModalidad}">${mon.modalidad}</span>
+                        <div class="datos">
+                            <p><strong>Monitor:</strong> ${mon.monitor}</p>
+                            <p><strong>Fecha:</strong> ${mon.fecha}</p>
+                            <p><strong>Horario:</strong> ${mon.horaInicio} - ${mon.horaFin}</p>
+                        </div>
+                        <div class="reserva-form">
+                            <input type="email" id="email_${mon.idBloque}" placeholder="Tu correo institucional" required>
+                            <button class="btn-reservar" onclick="reservar('${mon.idBloque}')">Reservar Espacio</button>
+                        </div>
+                    </div>
+                `;
+                contenedor.innerHTML += tarjetaHTML;
+            });
+        }
+
+        async function reservar(idBloque) {
+            const emailInput = document.getElementById(`email_${idBloque}`);
+            const email = emailInput.value.trim();
+
+            if (!email || !email.includes('@')) {
+                alert("Por favor, ingresa un correo institucional válido.");
+                return;
+            }
+
+            const btn = emailInput.nextElementSibling;
+            btn.innerText = "Reservando...";
+            btn.disabled = true;
+
+            const payload = { idBloque: idBloque, emailEstudiante: email };
+
+            try {
+                const respuesta = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const resultado = await respuesta.json();
+                
+                if (resultado.status === "exito") {
+                    alert("¡Monitoría reservada! Revisa tu correo.");
+                    cargarDatos(); // Recargar datos limpios desde el servidor
+                } else {
+                    alert("Hubo un problema: " + resultado.error);
+                    btn.innerText = "Reservar Espacio";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert("Error de conexión.");
+                btn.innerText = "Reservar Espacio";
+                btn.disabled = false;
+            }
+        }
+
+        // Ejecutar al inicio
+        cargarDatos();
+    </script>
+</body>
+</html>
