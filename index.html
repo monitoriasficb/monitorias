@@ -3,121 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitorías Académicas</title>
+    <title>Monitorías Académicas FICB</title>
+    <!-- Importar fuente similar a la institucional -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --color-primario: #003366; 
-            --color-secundario: #f4f7f6;
-            --color-acento: #28a745;
+            --uc-verde-principal: #517135; /* Verde olivo de los títulos */
+            --uc-verde-oscuro: #314221; /* Botones y textos fuertes */
+            --uc-fondo-gris: #f4f5f7; /* Fondo general de la página */
+            --uc-fondo-alerta: #f3f6ef; /* Fondo verde clarito de los recuadros interiores */
+            --uc-texto-gris: #4a4a4a;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--color-secundario);
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--uc-fondo-gris);
+            color: var(--uc-texto-gris);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
         }
+
+        /* Encabezado */
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-        .header h1 { color: var(--color-primario); }
         
+        .logo-uc {
+            max-width: 180px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 { 
+            color: var(--uc-verde-principal); 
+            font-size: 42px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+        }
+        
+        .header p {
+            font-size: 18px;
+            color: #555;
+            margin: 0;
+        }
+        
+        /* Contenedor de Filtros */
         .filtros-container {
-            max-width: 800px;
-            margin: 0 auto 30px auto;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             flex-wrap: wrap;
         }
+        
         .filtro-grupo {
             flex: 1;
-            min-width: 250px;
+            min-width: 280px;
             display: flex;
             flex-direction: column;
-        }
-        .filtro-grupo label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--color-primario);
-            font-size: 14px;
-        }
-        .filtro-grupo select {
-            padding: 10px;
-            font-size: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            outline: none;
         }
         
+        .filtro-grupo label {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--uc-verde-principal);
+            font-size: 15px;
+        }
+        
+        .filtro-grupo select {
+            padding: 12px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            color: #333;
+            background-color: #fafafa;
+        }
+
+        .filtro-grupo select:focus {
+            border-color: var(--uc-verde-principal);
+        }
+        
+        /* Grid y Tarjetas (Inspiradas en los pasos de la imagen) */
         .grid-monitorias {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1100px;
             margin: 0 auto;
         }
+        
         .tarjeta {
             background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border-top: 5px solid var(--uc-verde-principal);
+        }
+        
+        .tarjeta h3 { 
+            margin: 0 0 15px 0; 
+            color: var(--uc-verde-oscuro); 
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        /* El recuadro interior que pediste */
+        .datos-resaltados {
+            background-color: var(--uc-fondo-alerta);
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            border-top: 4px solid var(--color-primario);
+            padding: 15px 20px;
+            margin-bottom: 20px;
         }
-        .tarjeta:hover { transform: translateY(-5px); }
-        .tarjeta h3 { margin: 0 0 10px 0; color: var(--color-primario); }
-        .etiqueta {
+
+        .datos-resaltados p { 
+            margin: 8px 0; 
+            font-size: 15px; 
+            line-height: 1.5;
+        }
+
+        .etiqueta-modalidad {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-weight: 700;
+            color: var(--uc-verde-principal);
+            margin-bottom: 10px;
         }
-        .etiqueta.virtual { background-color: #e1f5fe; color: #0277bd; }
-        .etiqueta.presencial { background-color: #f1f8e9; color: #33691e; }
-        .datos p { margin: 5px 0; font-size: 14px; }
+
+        /* Formulario y Botón */
         .reserva-form {
-            margin-top: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
-        .reserva-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        
+        .reserva-form p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--uc-texto-gris);
+        }
+
+        .reserva-form input { 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            font-size: 14px;
+        }
+        
         .btn-reservar {
-            background-color: var(--color-acento);
+            background-color: var(--uc-verde-oscuro);
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 15px;
+            transition: background-color 0.2s;
         }
-        .btn-reservar:hover { background-color: #218838; }
-        .mensaje-carga { text-align: center; font-size: 18px; color: #666; }
+        
+        .btn-reservar:hover { 
+            background-color: #1e2914; 
+        }
+        
+        .btn-reservar:disabled { 
+            background-color: #a0a0a0; 
+            cursor: not-allowed; 
+        }
+        
+        .mensaje-carga { 
+            text-align: center; 
+            font-size: 18px; 
+            color: #666; 
+            margin-top: 40px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Monitorías Académicas</h1>
-        <p>Selecciona tu asignatura o monitor para ver los horarios disponibles.</p>
+        <!-- Reemplaza el src con la URL del logo de la UC que usas en tu otro repositorio -->
+        <img src="https://www.ucentral.edu.co/sites/default/files/logo_1.png" alt="Universidad Central" class="logo-uc" onerror="this.style.display='none'">
+        <h1>Monitorías Académicas FICB</h1>
+        <p>Agenda tu espacio de apoyo</p>
     </div>
 
     <div class="filtros-container">
         <div class="filtro-grupo">
-            <label for="filtroAsignatura">Filtrar por Asignatura:</label>
+            <label for="filtroAsignatura">Selecciona tu Asignatura:</label>
             <select id="filtroAsignatura" onchange="filtrarTarjetas()">
                 <option value="">-- Todas las asignaturas --</option>
             </select>
         </div>
         <div class="filtro-grupo">
-            <label for="filtroMonitor">Filtrar por Monitor:</label>
+            <label for="filtroMonitor">Selecciona al Monitor:</label>
             <select id="filtroMonitor" onchange="filtrarTarjetas()">
                 <option value="">-- Todos los monitores --</option>
             </select>
@@ -129,8 +213,7 @@
     <div class="grid-monitorias" id="contenedorTarjetas"></div>
 
     <script>
-        // URL pública corregida para evitar bloqueos institucionales
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwvOqJ3XXdV2A46gPutNQDcnxqOulRLzxFP2yoBQ3y3L0wsmYiID_K6EqeGoR_HRqfoMg/exec"; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3wXge0GQzwy81pYcTG1OPVmqesjs2vcg_nD-7bDZDbxMOncdsMFAg1q7b_LNx5OMDyQ/exec"; 
         let datosGlobales = []; 
 
         async function cargarDatos() {
@@ -146,7 +229,7 @@
                 poblarFiltros(datosGlobales); 
                 renderizarTarjetas(datosGlobales); 
             } catch (error) {
-                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica que existan horarios en estado 'Libre' en la base de datos.";
+                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica tu conexión.";
                 console.error("Detalle del error:", error);
             }
         }
@@ -154,6 +237,9 @@
         function poblarFiltros(datos) {
             const selectAsignatura = document.getElementById('filtroAsignatura');
             const selectMonitor = document.getElementById('filtroMonitor');
+            
+            selectAsignatura.innerHTML = '<option value="">-- Todas las asignaturas --</option>';
+            selectMonitor.innerHTML = '<option value="">-- Todos los monitores --</option>';
             
             const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
             const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
@@ -185,25 +271,28 @@
             contenedor.innerHTML = ""; 
 
             if (listaMonitorias.length === 0) {
-                contenedor.innerHTML = "<p style='grid-column: 1 / -1; text-align: center;'>No hay monitorías disponibles con estos filtros.</p>";
+                contenedor.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px;'>No hay monitorías disponibles con estos filtros o fechas.</p>";
                 return;
             }
 
             listaMonitorias.forEach(mon => {
-                const claseModalidad = mon.modalidad.toLowerCase() === 'virtual' ? 'virtual' : 'presencial';
-                
                 const tarjetaHTML = `
                     <div class="tarjeta">
                         <h3>${mon.asignatura}</h3>
-                        <span class="etiqueta ${claseModalidad}">${mon.modalidad}</span>
-                        <div class="datos">
+                        
+                        <!-- Caja interior verde pálido igual a la de la imagen -->
+                        <div class="datos-resaltados">
+                            <span class="etiqueta-modalidad">• Modalidad ${mon.modalidad}</span>
                             <p><strong>Monitor:</strong> ${mon.monitor}</p>
                             <p><strong>Fecha:</strong> ${mon.fecha}</p>
                             <p><strong>Horario:</strong> ${mon.horaInicio} - ${mon.horaFin}</p>
+                            <p style="color: var(--uc-verde-principal);"><strong>Cupos disponibles:</strong> ${mon.cupos}</p>
                         </div>
+
                         <div class="reserva-form">
+                            <p>¿Interesado en agendar?</p>
                             <input type="email" id="email_${mon.idBloque}" placeholder="Tu correo institucional" required>
-                            <button class="btn-reservar" onclick="reservar('${mon.idBloque}')">Reservar Espacio</button>
+                            <button class="btn-reservar" onclick="reservar('${mon.idBloque}')">Confirmar Reserva</button>
                         </div>
                     </div>
                 `;
@@ -216,12 +305,12 @@
             const email = emailInput.value.trim();
 
             if (!email || !email.includes('@')) {
-                alert("Por favor, ingresa un correo institucional válido.");
+                alert("Por favor, ingresa un correo válido.");
                 return;
             }
 
             const btn = emailInput.nextElementSibling;
-            btn.innerText = "Reservando...";
+            btn.innerText = "Procesando...";
             btn.disabled = true;
 
             const payload = { idBloque: idBloque, emailEstudiante: email };
@@ -235,16 +324,16 @@
                 const resultado = await respuesta.json();
                 
                 if (resultado.status === "exito") {
-                    alert("¡Monitoría reservada! Revisa tu correo.");
+                    alert("¡Monitoría reservada con éxito! Revisa tu bandeja de entrada para ver los detalles.");
                     cargarDatos(); 
                 } else {
                     alert("Hubo un problema: " + resultado.error);
-                    btn.innerText = "Reservar Espacio";
+                    btn.innerText = "Confirmar Reserva";
                     btn.disabled = false;
                 }
             } catch (error) {
-                alert("Error de conexión. Intenta de nuevo.");
-                btn.innerText = "Reservar Espacio";
+                alert("Error de conexión al servidor. Intenta de nuevo.");
+                btn.innerText = "Confirmar Reserva";
                 btn.disabled = false;
             }
         }
