@@ -280,7 +280,6 @@
                     <div class="tarjeta">
                         <h3>${mon.asignatura}</h3>
                         
-                        <!-- Caja interior verde pálido igual a la de la imagen -->
                         <div class="datos-resaltados">
                             <span class="etiqueta-modalidad">• Modalidad ${mon.modalidad}</span>
                             <p><strong>Monitor:</strong> ${mon.monitor}</p>
@@ -291,6 +290,8 @@
 
                         <div class="reserva-form">
                             <p>¿Interesado en agendar?</p>
+                            <!-- Nuevo campo para el nombre -->
+                            <input type="text" id="nombre_${mon.idBloque}" placeholder="Tu nombre completo" required style="margin-bottom: 5px;">
                             <input type="email" id="email_${mon.idBloque}" placeholder="Tu correo institucional" required>
                             <button class="btn-reservar" onclick="reservar('${mon.idBloque}')">Confirmar Reserva</button>
                         </div>
@@ -301,8 +302,16 @@
         }
 
         async function reservar(idBloque) {
+            const nombreInput = document.getElementById(`nombre_${idBloque}`);
             const emailInput = document.getElementById(`email_${idBloque}`);
+            
+            const nombre = nombreInput.value.trim();
             const email = emailInput.value.trim();
+
+            if (!nombre) {
+                alert("Por favor, ingresa tu nombre completo.");
+                return;
+            }
 
             if (!email || !email.includes('@')) {
                 alert("Por favor, ingresa un correo válido.");
@@ -313,7 +322,8 @@
             btn.innerText = "Procesando...";
             btn.disabled = true;
 
-            const payload = { idBloque: idBloque, emailEstudiante: email };
+            // Ahora enviamos tanto el nombre como el correo
+            const payload = { idBloque: idBloque, nombreEstudiante: nombre, emailEstudiante: email };
 
             try {
                 const respuesta = await fetch(WEB_APP_URL, {
@@ -337,7 +347,6 @@
                 btn.disabled = false;
             }
         }
-
         cargarDatos();
     </script>
 </body>
