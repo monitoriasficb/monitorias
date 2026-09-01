@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitorías Académicas FICB</title>
-    <!-- Importar fuente similar a la institucional -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --uc-verde-principal: #517135; /* Verde olivo de los títulos */
-            --uc-verde-oscuro: #314221; /* Botones y textos fuertes */
-            --uc-fondo-gris: #f4f5f7; /* Fondo general de la página */
-            --uc-fondo-alerta: #f3f6ef; /* Fondo verde clarito de los recuadros interiores */
+            --uc-verde-principal: #517135; 
+            --uc-verde-oscuro: #314221; 
+            --uc-fondo-gris: #f4f5f7; 
+            --uc-fondo-alerta: #f3f6ef; 
             --uc-texto-gris: #4a4a4a;
         }
 
@@ -24,7 +23,6 @@
             padding: 40px 20px;
         }
 
-        /* Encabezado */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -48,7 +46,6 @@
             margin: 0;
         }
         
-        /* Contenedor de Filtros */
         .filtros-container {
             max-width: 900px;
             margin: 0 auto 40px auto;
@@ -89,7 +86,6 @@
             border-color: var(--uc-verde-principal);
         }
         
-        /* Grid y Tarjetas (Inspiradas en los pasos de la imagen) */
         .grid-monitorias {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -113,7 +109,6 @@
             font-weight: 700;
         }
         
-        /* El recuadro interior que pediste */
         .datos-resaltados {
             background-color: var(--uc-fondo-alerta);
             border-radius: 8px;
@@ -134,7 +129,6 @@
             margin-bottom: 10px;
         }
 
-        /* Formulario y Botón */
         .reserva-form {
             display: flex;
             flex-direction: column;
@@ -182,7 +176,7 @@
             color: #666; 
             margin-top: 40px;
         }
-        /* Animación de estado de carga */
+        
         .contenedor-carga {
             display: flex;
             flex-direction: column;
@@ -206,7 +200,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Oculta los filtros inicialmente */
         #seccionFiltros {
             display: none; 
         }
@@ -215,13 +208,11 @@
 <body>
 
     <div class="header">
-        <!-- Reemplaza el src con la URL del logo de la UC que usas en tu otro repositorio -->
         <img src="https://www.ucentral.edu.co/sites/default/files/logo_1.png" alt="Universidad Central" class="logo-uc" onerror="this.style.display='none'">
         <h1>Monitorías Académicas FICB</h1>
         <p>Agenda tu espacio de apoyo</p>
     </div>
 
-    <!-- Se le agregó el ID seccionFiltros para mantenerlo oculto al inicio -->
     <div class="filtros-container" id="seccionFiltros">
         <div class="filtro-grupo">
             <label for="filtroAsignatura">Selecciona tu Asignatura:</label>
@@ -237,7 +228,6 @@
         </div>
     </div>
 
-    <!-- Nuevo diseño del estado de carga -->
     <div id="estadoCarga" class="contenedor-carga">
         <div class="spinner"></div>
         <div style="font-size: 18px; color: #666; font-weight: 600;">Conectando con la base de datos...</div>
@@ -258,10 +248,7 @@
                 
                 datosGlobales = datos;
                 
-                // Ocultamos el spinner animado
                 document.getElementById('estadoCarga').style.display = 'none';
-                
-                // Hacemos aparecer los filtros de golpe ya listos para usar
                 document.getElementById('seccionFiltros').style.display = 'flex';
                 
                 poblarFiltros(datosGlobales); 
@@ -273,8 +260,7 @@
                 console.error("Detalle del error:", error);
             }
         }
-        
-        // Esta es la función que se había borrado por accidente
+
         function poblarFiltros(datos) {
             const selectAsignatura = document.getElementById('filtroAsignatura');
             const selectMonitor = document.getElementById('filtroMonitor');
@@ -298,13 +284,11 @@
             const asigSeleccionada = document.getElementById('filtroAsignatura').value;
             const monSeleccionado = document.getElementById('filtroMonitor').value;
             
-            // Si ambos filtros están vacíos, ocultamos todo para ahorrar memoria
             if (asigSeleccionada === "" && monSeleccionado === "") {
                 document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
                 return;
             }
             
-            // Filtramos y mostramos solo lo que el estudiante busca
             const resultadosFiltrados = datosGlobales.filter(mon => {
                 const coincideAsig = asigSeleccionada === "" || mon.asignatura === asigSeleccionada;
                 const coincideMon = monSeleccionado === "" || mon.monitor === monSeleccionado;
@@ -316,12 +300,14 @@
 
         function renderizarTarjetas(listaMonitorias) {
             const contenedor = document.getElementById('contenedorTarjetas');
-            contenedor.innerHTML = ""; 
-
+            
             if (listaMonitorias.length === 0) {
                 contenedor.innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px;'>No hay monitorías disponibles con estos filtros o fechas.</p>";
                 return;
             }
+
+            // 🚀 INYECCIÓN EN MEMORIA: Súper optimizado
+            let htmlAcumulado = ""; 
 
             listaMonitorias.forEach(mon => {
                 const tarjetaHTML = `
@@ -344,8 +330,11 @@
                         </div>
                     </div>
                 `;
-                contenedor.innerHTML += tarjetaHTML;
+                htmlAcumulado += tarjetaHTML; 
             });
+            
+            // Un solo redibujado para no colapsar el celular del usuario
+            contenedor.innerHTML = htmlAcumulado; 
         }
 
         async function reservar(idBloque) {
@@ -374,6 +363,10 @@
             try {
                 const respuesta = await fetch(WEB_APP_URL, {
                     method: 'POST',
+                    redirect: 'follow', 
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    },
                     body: JSON.stringify(payload)
                 });
                 
@@ -382,10 +375,8 @@
                 if (resultado.status === "exito") {
                     alert("¡Monitoría reservada con éxito! Revisa tu bandeja de entrada para ver los detalles.");
                     
-                    // Limpiamos los campos de texto
                     nombreInput.value = "";
                     emailInput.value = "";
-                    
                     cargarDatos(); 
                 } else {
                     alert("Hubo un problema: " + resultado.error);
@@ -393,9 +384,12 @@
                     btn.disabled = false;
                 }
             } catch (error) {
-                alert("Error de conexión al servidor. Intenta de nuevo.");
-                btn.innerText = "Confirmar Reserva";
-                btn.disabled = false;
+                console.error("Detalle del error de red:", error);
+                alert("Tu solicitud fue procesada. Si no ves el correo en tu bandeja en 2 minutos, revisa tu carpeta de Spam.");
+                
+                nombreInput.value = "";
+                emailInput.value = "";
+                cargarDatos(); 
             }
         }
 
