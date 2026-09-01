@@ -227,26 +227,8 @@
                 document.getElementById('estadoCarga').style.display = 'none';
                 
                 poblarFiltros(datosGlobales); 
-                renderizarTarjetas(datosGlobales); 
-            } catch (error) {
-                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica tu conexión.";
-                console.error("Detalle del error:", error);
-            }
-        }
-
-        async function cargarDatos() {
-            try {
-                const respuesta = await fetch(WEB_APP_URL);
-                const datos = await respuesta.json();
                 
-                if(datos.error) throw new Error(datos.error);
-                
-                datosGlobales = datos;
-                document.getElementById('estadoCarga').style.display = 'none';
-                
-                poblarFiltros(datosGlobales); 
-                
-                // NUEVO: En lugar de renderizar todas las tarjetas, mostramos un mensaje de bienvenida
+                // Pantalla limpia al inicio para no colapsar el navegador
                 document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
                 
             } catch (error) {
@@ -255,17 +237,37 @@
             }
         }
 
+        // Esta es la función que se había borrado por accidente
+        function poblarFiltros(datos) {
+            const selectAsignatura = document.getElementById('filtroAsignatura');
+            const selectMonitor = document.getElementById('filtroMonitor');
+            
+            selectAsignatura.innerHTML = '<option value="">-- Todas las asignaturas --</option>';
+            selectMonitor.innerHTML = '<option value="">-- Todos los monitores --</option>';
+            
+            const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
+            const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
+            
+            asignaturasUnicas.forEach(asig => {
+                selectAsignatura.innerHTML += `<option value="${asig}">${asig}</option>`;
+            });
+            
+            monitoresUnicos.forEach(mon => {
+                selectMonitor.innerHTML += `<option value="${mon}">${mon}</option>`;
+            });
+        }
+
         function filtrarTarjetas() {
             const asigSeleccionada = document.getElementById('filtroAsignatura').value;
             const monSeleccionado = document.getElementById('filtroMonitor').value;
             
-            // NUEVO: Si ambos filtros están vacíos (en "-- Todas --"), volvemos a ocultar todo
+            // Si ambos filtros están vacíos, ocultamos todo para ahorrar memoria
             if (asigSeleccionada === "" && monSeleccionado === "") {
                 document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
                 return;
             }
             
-            // Si hay al menos un filtro seleccionado, procedemos a buscar y mostrar
+            // Filtramos y mostramos solo lo que el estudiante busca
             const resultadosFiltrados = datosGlobales.filter(mon => {
                 const coincideAsig = asigSeleccionada === "" || mon.asignatura === asigSeleccionada;
                 const coincideMon = monSeleccionado === "" || mon.monitor === monSeleccionado;
@@ -299,7 +301,6 @@
 
                         <div class="reserva-form">
                             <p>¿Interesado en agendar?</p>
-                            <!-- Nuevo campo para el nombre -->
                             <input type="text" id="nombre_${mon.idBloque}" placeholder="Tu nombre completo" required style="margin-bottom: 5px;">
                             <input type="email" id="email_${mon.idBloque}" placeholder="Tu correo institucional" required>
                             <button class="btn-reservar" onclick="reservar('${mon.idBloque}')">Confirmar Reserva</button>
@@ -331,7 +332,6 @@
             btn.innerText = "Procesando...";
             btn.disabled = true;
 
-            // Ahora enviamos tanto el nombre como el correo
             const payload = { idBloque: idBloque, nombreEstudiante: nombre, emailEstudiante: email };
 
             try {
@@ -344,6 +344,11 @@
                 
                 if (resultado.status === "exito") {
                     alert("¡Monitoría reservada con éxito! Revisa tu bandeja de entrada para ver los detalles.");
+                    
+                    // Limpiamos los campos de texto
+                    nombreInput.value = "";
+                    emailInput.value = "";
+                    
                     cargarDatos(); 
                 } else {
                     alert("Hubo un problema: " + resultado.error);
@@ -356,6 +361,7 @@
                 btn.disabled = false;
             }
         }
+
         cargarDatos();
     </script>
 </body>
