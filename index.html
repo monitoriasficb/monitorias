@@ -234,29 +234,38 @@
             }
         }
 
-        function poblarFiltros(datos) {
-            const selectAsignatura = document.getElementById('filtroAsignatura');
-            const selectMonitor = document.getElementById('filtroMonitor');
-            
-            selectAsignatura.innerHTML = '<option value="">-- Todas las asignaturas --</option>';
-            selectMonitor.innerHTML = '<option value="">-- Todos los monitores --</option>';
-            
-            const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
-            const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
-            
-            asignaturasUnicas.forEach(asig => {
-                selectAsignatura.innerHTML += `<option value="${asig}">${asig}</option>`;
-            });
-            
-            monitoresUnicos.forEach(mon => {
-                selectMonitor.innerHTML += `<option value="${mon}">${mon}</option>`;
-            });
+        async function cargarDatos() {
+            try {
+                const respuesta = await fetch(WEB_APP_URL);
+                const datos = await respuesta.json();
+                
+                if(datos.error) throw new Error(datos.error);
+                
+                datosGlobales = datos;
+                document.getElementById('estadoCarga').style.display = 'none';
+                
+                poblarFiltros(datosGlobales); 
+                
+                // NUEVO: En lugar de renderizar todas las tarjetas, mostramos un mensaje de bienvenida
+                document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
+                
+            } catch (error) {
+                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica tu conexión o permisos del script.";
+                console.error("Detalle del error:", error);
+            }
         }
 
         function filtrarTarjetas() {
             const asigSeleccionada = document.getElementById('filtroAsignatura').value;
             const monSeleccionado = document.getElementById('filtroMonitor').value;
             
+            // NUEVO: Si ambos filtros están vacíos (en "-- Todas --"), volvemos a ocultar todo
+            if (asigSeleccionada === "" && monSeleccionado === "") {
+                document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
+                return;
+            }
+            
+            // Si hay al menos un filtro seleccionado, procedemos a buscar y mostrar
             const resultadosFiltrados = datosGlobales.filter(mon => {
                 const coincideAsig = asigSeleccionada === "" || mon.asignatura === asigSeleccionada;
                 const coincideMon = monSeleccionado === "" || mon.monitor === monSeleccionado;
