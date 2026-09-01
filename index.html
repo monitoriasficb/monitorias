@@ -182,6 +182,34 @@
             color: #666; 
             margin-top: 40px;
         }
+        /* Animación de estado de carga */
+        .contenedor-carga {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            border: 5px solid rgba(0, 0, 0, 0.08);
+            border-left-color: var(--uc-verde-principal);
+            border-radius: 50%;
+            animation: girar 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes girar {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Oculta los filtros inicialmente */
+        #seccionFiltros {
+            display: none; 
+        }
     </style>
 </head>
 <body>
@@ -193,7 +221,8 @@
         <p>Agenda tu espacio de apoyo</p>
     </div>
 
-    <div class="filtros-container">
+    <!-- Se le agregó el ID seccionFiltros para mantenerlo oculto al inicio -->
+    <div class="filtros-container" id="seccionFiltros">
         <div class="filtro-grupo">
             <label for="filtroAsignatura">Selecciona tu Asignatura:</label>
             <select id="filtroAsignatura" onchange="filtrarTarjetas()">
@@ -208,7 +237,11 @@
         </div>
     </div>
 
-    <div id="estadoCarga" class="mensaje-carga">Cargando horarios disponibles...</div>
+    <!-- Nuevo diseño del estado de carga -->
+    <div id="estadoCarga" class="contenedor-carga">
+        <div class="spinner"></div>
+        <div style="font-size: 18px; color: #666; font-weight: 600;">Conectando con la base de datos...</div>
+    </div>
     
     <div class="grid-monitorias" id="contenedorTarjetas"></div>
 
@@ -224,19 +257,23 @@
                 if(datos.error) throw new Error(datos.error);
                 
                 datosGlobales = datos;
+                
+                // Ocultamos el spinner animado
                 document.getElementById('estadoCarga').style.display = 'none';
+                
+                // Hacemos aparecer los filtros de golpe ya listos para usar
+                document.getElementById('seccionFiltros').style.display = 'flex';
                 
                 poblarFiltros(datosGlobales); 
                 
-                // Pantalla limpia al inicio para no colapsar el navegador
                 document.getElementById('contenedorTarjetas').innerHTML = "<p style='grid-column: 1 / -1; text-align: center; font-size: 18px; color: #555;'>👈 Por favor selecciona una asignatura o monitor para ver los horarios disponibles.</p>";
                 
             } catch (error) {
-                document.getElementById('estadoCarga').innerText = "Error al cargar los datos. Verifica tu conexión o permisos del script.";
+                document.getElementById('estadoCarga').innerHTML = "<div style='color: #d32f2f; font-weight: bold;'>Error al cargar los datos. Verifica tu conexión.</div>";
                 console.error("Detalle del error:", error);
             }
         }
-
+        
         // Esta es la función que se había borrado por accidente
         function poblarFiltros(datos) {
             const selectAsignatura = document.getElementById('filtroAsignatura');
