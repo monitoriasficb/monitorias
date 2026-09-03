@@ -216,13 +216,13 @@
     <div class="filtros-container" id="seccionFiltros">
         <div class="filtro-grupo">
             <label for="filtroAsignatura">Selecciona tu Asignatura:</label>
-            <select id="filtroAsignatura" onchange="filtrarTarjetas()">
+            <select id="filtroAsignatura" onchange="dependenciaFiltros('asignatura')">
                 <option value="">-- Todas las asignaturas --</option>
             </select>
         </div>
         <div class="filtro-grupo">
             <label for="filtroMonitor">Selecciona al Monitor:</label>
-            <select id="filtroMonitor" onchange="filtrarTarjetas()">
+            <select id="filtroMonitor" onchange="dependenciaFiltros('monitor')">
                 <option value="">-- Todos los monitores --</option>
             </select>
         </div>
@@ -268,8 +268,9 @@
             selectAsignatura.innerHTML = '<option value="">-- Todas las asignaturas --</option>';
             selectMonitor.innerHTML = '<option value="">-- Todos los monitores --</option>';
             
-            const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort();
-            const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort();
+            // 🚀 OPTIMIZACIÓN: Ordenamiento alfabético estricto en español
+            const asignaturasUnicas = [...new Set(datos.map(d => d.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
+            const monitoresUnicos = [...new Set(datos.map(d => d.monitor))].sort((a, b) => a.localeCompare(b, 'es'));
             
             asignaturasUnicas.forEach(asig => {
                 selectAsignatura.innerHTML += `<option value="${asig}">${asig}</option>`;
@@ -278,6 +279,46 @@
             monitoresUnicos.forEach(mon => {
                 selectMonitor.innerHTML += `<option value="${mon}">${mon}</option>`;
             });
+        }
+
+        function dependenciaFiltros(origen) {
+            const selectAsignatura = document.getElementById('filtroAsignatura');
+            const selectMonitor = document.getElementById('filtroMonitor');
+            
+            const asigSeleccionada = selectAsignatura.value;
+            const monSeleccionado = selectMonitor.value;
+
+            if (origen === 'asignatura') {
+                let monitoresFiltrados = datosGlobales;
+                if (asigSeleccionada !== "") {
+                    monitoresFiltrados = datosGlobales.filter(d => d.asignatura === asigSeleccionada);
+                }
+                // 🚀 OPTIMIZACIÓN: Ordenamiento alfabético estricto en español
+                const monitoresUnicos = [...new Set(monitoresFiltrados.map(d => d.monitor))].sort((a, b) => a.localeCompare(b, 'es'));
+                
+                selectMonitor.innerHTML = '<option value="">-- Todos los monitores --</option>';
+                monitoresUnicos.forEach(mon => {
+                    let selected = (mon === monSeleccionado) ? "selected" : "";
+                    selectMonitor.innerHTML += `<option value="${mon}" ${selected}>${mon}</option>`;
+                });
+            }
+
+            if (origen === 'monitor') {
+                let asignaturasFiltradas = datosGlobales;
+                if (monSeleccionado !== "") {
+                    asignaturasFiltradas = datosGlobales.filter(d => d.monitor === monSeleccionado);
+                }
+                // 🚀 OPTIMIZACIÓN: Ordenamiento alfabético estricto en español
+                const asignaturasUnicas = [...new Set(asignaturasFiltradas.map(d => d.asignatura))].sort((a, b) => a.localeCompare(b, 'es'));
+                
+                selectAsignatura.innerHTML = '<option value="">-- Todas las asignaturas --</option>';
+                asignaturasUnicas.forEach(asig => {
+                    let selected = (asig === asigSeleccionada) ? "selected" : "";
+                    selectAsignatura.innerHTML += `<option value="${asig}" ${selected}>${asig}</option>`;
+                });
+            }
+
+            filtrarTarjetas();
         }
 
         function filtrarTarjetas() {
@@ -306,7 +347,6 @@
                 return;
             }
 
-            // 🚀 INYECCIÓN EN MEMORIA: Súper optimizado
             let htmlAcumulado = ""; 
 
             listaMonitorias.forEach(mon => {
@@ -333,7 +373,6 @@
                 htmlAcumulado += tarjetaHTML; 
             });
             
-            // Un solo redibujado para no colapsar el celular del usuario
             contenedor.innerHTML = htmlAcumulado; 
         }
 
